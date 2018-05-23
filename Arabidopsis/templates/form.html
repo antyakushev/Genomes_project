@@ -1,0 +1,8 @@
+<h2>Enter script name</h2>
+  <form action="{{ url_for('runner') }}" method=post>
+    {{ form.hidden_tag() }}
+ 
+    {{ form.filename.label }}
+    {{ form.filename }}
+
+</form>
