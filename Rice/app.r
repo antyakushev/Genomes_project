@@ -6,27 +6,38 @@ df <- 10
 
 # Define the UI
 ui <- bootstrapPage(
+  selectInput(
+    "script", "Choose script:",
+    c("ATGs"="get_ATGs", "Fin anno"="get_fin_anno", "Promoters"="get_promoters")
+  ),
   actionButton('run', 'Run script'),
-  verbatimTextOutput('out1'),
-  numericInput('df', 'Number of obs', df),
-  plotOutput('plot')
+  hr(),
+  conditionalPanel(
+    condition="input.script=='get_ATGs'",
+    numericInput('df', 'Approximation', df)
+  ),
+  plotOutput('plot'),
+  verbatimTextOutput('out1')
 )
-
 
 # Define the server code
 server <- function(input, output) {
   output$out1 <- renderPrint({
     observeEvent(input$run, {
-      system('python ../Arabidopsis/get_ATGs.py ../Arabidopsis/data/TAIR10_GFF3_genes.gff')
+      system(paste('python ../Arabidopsis/', input$script, '.py ../Arabidopsis/data/TAIR10_GFF3_genes.gff', sep=''))
     })
   })
   output$plot <- renderPlot({
-    plot(data,
-      main="Transcription Factor Binding Sites (TRANSFAC database)",
-      ylab='Fraction of promoters with TFBS',
-      xlab='Distance from TSS, nt')
-    lines(predict(smooth.spline(data,df=input$df)),col='red',lwd=3)
-    abline(v=0)
+    if (input$script == 'get_ATGs') {
+      plot(data,
+        main="Transcription Factor Binding Sites (TRANSFAC database)",
+        ylab='Fraction of promoters with TFBS',
+        xlab='Distance from TSS, nt')
+      lines(predict(smooth.spline(data,df=input$df)),col='red',lwd=3)
+      abline(v=0)
+    } else {
+      plot(data)
+    }
   })
 }
 
