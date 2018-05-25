@@ -1,9 +1,13 @@
+library(rPython)
+
 # Global variables can go here
 data <- read.table('./data/transfac.txt',header=T)
 df <- 10
 
 # Define the UI
 ui <- bootstrapPage(
+  actionButton('run', 'Run script'),
+  verbatimTextOutput('out1'),
   numericInput('df', 'Number of obs', df),
   plotOutput('plot')
 )
@@ -11,6 +15,11 @@ ui <- bootstrapPage(
 
 # Define the server code
 server <- function(input, output) {
+  output$out1 <- renderPrint({
+    observeEvent(input$run, {
+      system('python ../Arabidopsis/get_ATGs.py ../Arabidopsis/data/TAIR10_GFF3_genes.gff')
+    })
+  })
   output$plot <- renderPlot({
     plot(data,
       main="Transcription Factor Binding Sites (TRANSFAC database)",
